@@ -1,6 +1,6 @@
 # Environmental Data Exploration - Spring 2026
 ENV 872 - Environmental Data Exploration - Spring 2026  
-Instructor: John Fay  
+Sky Volz 
 Nicholas School of the Environment  
 Duke University  
 
