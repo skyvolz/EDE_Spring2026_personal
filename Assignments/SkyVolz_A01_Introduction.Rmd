@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Sky Volz"
 output: pdf_document
 ---
 
@@ -15,7 +15,7 @@ This exercise accompanies the introductory material in Environmental Data Analyt
 5.  When you have completed the assignment, **Knit** the text and code into a single PDF file.
 6.  After Knitting, submit the completed exercise (PDF file) to the appropriate assignment section on Canvas.
 
-7.  Initial here to acknowledge that you did not use AI at all in completing this assignment: ___
+7.  Initial here to acknowledge that you did not use AI at all in completing this assignment: SV
 
 ---
 
@@ -24,23 +24,23 @@ Enter answers to the questions just below the >Answer: prompt.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: I have used R before in undergrad for an ecology class, but all of the code was written by my teacher.
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: I feel confident in data organization and data types.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
+> Answer: I feel apprehensive about learning the new coding language and being able to find my files. I also feel apprehensive about learning how to use the container.
 
 4. Describe a dataset you have used in the past. Explain whether it was a primary or secondary dataset. 
 
-> Answer:
+> Answer: I used a dataset of kelp forest locations and sea temperature trends in a storymap and I added sybology to make it easier to see trends, which was a secondary dataset.
 
 5. Would you describe the day of the month as a nominal, ordinal, interval, or ratio number? Explain your reasoning.
 
-> Answer: 
+> Answer: I would say this is ordinal because it represents a number in an order, but not a magnitude. For example, a date of 20 versus 29 does not have a difference in magnitude.
 
 ---
 
@@ -48,7 +48,7 @@ Enter answers to the questions just below the >Answer: prompt.
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository and that you have updated your course README file, committed those changes, and pushed them to your GitHub account. 
 
-> Answer: 
+> Answer: https://github.com/skyvolz/EDE_Spring2026_personal
 
 ---
 
