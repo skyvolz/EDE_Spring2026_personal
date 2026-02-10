@@ -92,13 +92,21 @@ EPAair.PM25.NC2019$Date <- mdy(EPAair.PM25.NC2019$Date)
 
 #4
 #selecting for the columns I want 
-Air.03.2018.select <- select(EPAair.03.NC2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+Air.03.2018.select <- select(EPAair.03.NC2018, Date, DAILY_AQI_VALUE, 
+                             Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+                             SITE_LATITUDE, SITE_LONGITUDE)
 
-Air.03.2019.select <- select(EPAair.03.NC2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+Air.03.2019.select <- select(EPAair.03.NC2019, Date, DAILY_AQI_VALUE, 
+                             Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+                             SITE_LATITUDE, SITE_LONGITUDE)
 
-Air.PM25.2018.select <- select(EPAair.PM25.NC2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+Air.PM25.2018.select <- select(EPAair.PM25.NC2018, Date, DAILY_AQI_VALUE, 
+                               Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+                               SITE_LATITUDE, SITE_LONGITUDE)
 
-Air.PM25.2019.select <- select(EPAair.PM25.NC2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+Air.PM25.2019.select <- select(EPAair.PM25.NC2019, Date, DAILY_AQI_VALUE, 
+                               Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+                               SITE_LATITUDE, SITE_LONGITUDE)
 
 #5
 #assigning a value to the entire column to replace the old value
@@ -146,7 +154,8 @@ write.csv(Air.PM25.2019.select,
 
 ```{r questions 7 thru 12}
 #7 
-EPAair.data.all <- rbind(Air.03.2018.select, Air.03.2019.select, Air.PM25.2018.select, Air.PM25.2019.select)
+EPAair.data.all <- rbind(Air.03.2018.select, Air.03.2019.select, 
+                         Air.PM25.2018.select, Air.PM25.2019.select)
 
 #8 
 dim(EPAair.data.all)
@@ -172,13 +181,13 @@ dim(EPAair.common.sites)
 #10
 # Spread AQI values into separate columns using pivot_wider
 #for every ozone row, value from meanAQI - same for PM2.5
-colnames(EPAair.common.sites)
 EPAair.common.sites.spread <- EPAair.common.sites %>% 
   pivot_wider(names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
 
-#reorganizing columns so their layout makes more sense
+#reorganizing columns so the layout makes more sense
 EPAair.common.sites.organized <- EPAair.common.sites.spread %>% 
   select(Date, year, month, Site.Name:Ozone)
+
 
 #11
 dim(EPAair.common.sites.organized)
@@ -205,7 +214,6 @@ EPAair.summary <- EPAair.common.sites.organized %>%
             mean_PM2.5 = mean(PM2.5)) %>% #apply summary functions
   drop_na(mean_ozone) #dropping n/a values from the summary ozone column
 
-
 #14
 dim(EPAair.summary)
 
@@ -220,4 +228,4 @@ write.csv(EPAair.summary,
 
 16. Stage, commit, and push your Assignment to your GitHub account. Provide a link to your repository below.
 
-> Github repository URL: https:\\github.com\
+> Github repository URL: https://github.com/skyvolz/EDE_Spring2026_personal
