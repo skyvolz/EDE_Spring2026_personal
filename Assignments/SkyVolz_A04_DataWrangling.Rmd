@@ -149,15 +149,43 @@ write.csv(Air.PM25.2019.select,
 EPAair.data.all <- rbind(Air.03.2018.select, Air.03.2019.select, Air.PM25.2018.select, Air.PM25.2019.select)
 
 #8 
+dim(EPAair.data.all)
 
 #9
+#filtering using %in% to show only the sites names included in the vector
+EPAair.common.sites <- EPAair.data.all %>% 
+  filter(Site.Name %in% c( "Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue",  
+    "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", 
+    "West Johnston Co.", "Garinger High School", "Castle Hayne", 
+    "Pitt Agri. Center", "Bryson City", "Millbrook School" )) %>% 
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% #split=group
+  summarise(meanAQI = mean(DAILY_AQI_VALUE), #apply=summarizing
+            mean_lat = mean(SITE_LATITUDE),
+            mean_long = mean(SITE_LONGITUDE))
+
+#using lubridate to create month and year columns
+EPAair.common.sites <- mutate(EPAair.common.sites, month = month(Date), year = year(Date))
+
+#checking dimensions
+dim(EPAair.common.sites)
 
 #10
+# Spread AQI values into separate columns using pivot_wider
+#for every ozone row, value from meanAQI - same for PM2.5
+colnames(EPAair.common.sites)
+EPAair.common.sites.spread <- EPAair.common.sites %>% 
+  pivot_wider(names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
+
+#reorganizing columns so their layout makes more sense
+EPAair.common.sites.organized <- EPAair.common.sites.spread %>% 
+  select(Date, year, month, Site.Name:Ozone)
 
 #11
+dim(EPAair.common.sites.organized)
 
 #12
-
+write.csv(EPAair.common.sites.organized, 
+          file=here("Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv"))
 
 ```
 
@@ -171,15 +199,24 @@ EPAair.data.all <- rbind(Air.03.2018.select, Air.03.2019.select, Air.PM25.2018.s
 ```{r questions 13 and 14}
 
 #13
+EPAair.summary <- EPAair.common.sites.organized %>% 
+  group_by(Site.Name, month, year) %>% #split into groups
+  summarise(mean_ozone = mean(Ozone), 
+            mean_PM2.5 = mean(PM2.5)) %>% #apply summary functions
+  drop_na(mean_ozone) #dropping n/a values from the summary ozone column
+
 
 #14
+dim(EPAair.summary)
 
+write.csv(EPAair.summary, 
+          file=here("Data/Processed/EPAair_O3_PM25_NC1819_Summary_Processed.csv"))
 
 ```
 
 15. Why did we use the function `drop_na` rather than `na.omit`? Hint: replace `drop_na` with `na.omit` in part 13 and observe what happens with the dimensions of the summary date frame.
 
-> Answer: 
+> Answer: When I used na.omit, it got rid of the n/a in the PM2.5 column, which got rid of 81 rows of data that I had wanted to keep. By using the drop_na and telling it to only drop the n/a values in the ozone column, it still kept rows that had n/a values in the PM2.5 column. The drop_na command is more selective for when I want to omit specific things.
 
 16. Stage, commit, and push your Assignment to your GitHub account. Provide a link to your repository below.
 
