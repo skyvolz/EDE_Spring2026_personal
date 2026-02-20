@@ -1,6 +1,6 @@
 ---
 title: "Assignment 10: Data Scraping"
-author: "Student Name"
+author: "Sky Volz"
 output: pdf_document
 editor_options: 
   chunk_output_type: console
@@ -27,8 +27,13 @@ This exercise accompanies the lessons in Environmental Data Analytics on data sc
 
 ```{r 1. Project Setup, message = FALSE}
 #1 
+library(tidyverse); library(rvest); library(here)
+here()
 
-
+mytheme <- theme_gray() +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 ```
 
 2. We will be scraping data from the NC DEQs Local Water Supply Planning website, specifically the Durham's 2024 Municipal Local Water Supply Plan (LWSP): 
@@ -41,7 +46,8 @@ Indicate this website as the as the URL to be scraped. (In other words, read the
 
 ```{r set.the.scraping.website}
 #2 
-
+the_website <- 
+  read_html("https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2024")
 
 ```
 
@@ -61,7 +67,17 @@ In the code chunk below scrape these values, assigning them to four separate var
 
 ```{r scrape.the.data}
 #3 
+the_system_name <- the_website %>% 
+  html_nodes("div+ table tr:nth-child(1) td:nth-child(2)") %>% html_text()
 
+the_contact_person <- the_website %>% 
+  html_nodes("div+ table tr:nth-child(4) td:nth-child(2)") %>% html_text()
+
+the_ownership <- the_website %>% 
+  html_nodes("div+ table tr:nth-child(2) td:nth-child(4)") %>% html_text()
+
+maximum_day_use <- the_website %>% 
+  html_nodes("th~ td+ td") %>% html_text()
 
 ```
 
@@ -76,10 +92,27 @@ In the code chunk below scrape these values, assigning them to four separate var
 
 ```{r create.a.dataframe.from.scraped.data}
 #4 
+max_day_df <- data.frame(
+  "contact.person" = the_contact_person,
+  "ownership" = the_ownership,
+  "system.name" = the_system_name,
+  "max.day.use.MGD" = as.numeric(maximum_day_use),
+  "month" = c(1,5,9,2,6,10,3,7,11,4,8,12),
+  "year" = 2024
+)
 
+max_day_df <- max_day_df %>% 
+  mutate(date = my(paste(month,"-",year)))
 
 #5 
-
+max_day_plot <- ggplot(max_day_df, aes(x = month,y=max.day.use.MGD)) +
+  geom_line() + #mytheme + 
+  labs(x="Month", y="Maximum Daily Use (MGD)") +
+  scale_x_continuous(
+    limits = c(1, 12),
+    breaks = 1:12
+  )
+print(max_day_plot)
 
 ```
 
@@ -92,21 +125,61 @@ In the code chunk below scrape these values, assigning them to four separate var
 
 ```{r construct.a.scraping.function}
 #6. 
+scrape.it <- function(PWSID, year){
+the_url <- paste0(
+      "https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2024",
+           PWSID, "&year=", year)
 
+the_website <- read_html(the_url)
+
+  #setting element address variables
+  the_contact_person <- 'div+ table tr:nth-child(4) td:nth-child(2)'
+  the_ownership <- 'div+ table tr:nth-child(2) td:nth-child(4)'
+  the_system_name <- 'div+ table tr:nth-child(1) td:nth-child(2)'
+  maximum_day_use <- 'th~ td+ td'
+  #scraping the data items
+  the_contact_person <- the_website %>% html_nodes(the_contact_person) %>% html_text()
+  the_ownership <- the_website %>%   html_nodes(the_ownership) %>%  html_text()
+  the_system_name <- the_website %>% html_nodes(the_system_name) %>% html_text()
+  maximum_day_use <- the_website %>% html_nodes(maximum_day_use) %>% html_text()
+  #creating data frame
+   df_day_use <- data.frame(
+    contact.person = the_contact_person,
+    ownership = the_ownership,
+    system.name = the_system_name,
+    max.day.use.MGD = maximum_day_use,
+    month = c(1,5,9,2,6,10,3,7,11,4,8,12),
+    PWSID = PWSID,
+    year = year
+  )
+
+  return(df_day_use)
+}
 ```
 
 7. Use the function above to extract and plot max daily withdrawals for Durham (PWSID='03-32-010') for each month in 2020. Then show the structure of the dataframe with either the `str()` or the `glimpse()` function. 
 
 ```{r fetch.and.plot.Durham.2020.data}
 #7 
-
+df <- scrape.it("03-32-010",2020)
+day_use_plot <- ggplot(df, aes(x = month,y=max.day.use.MGD, group = 1)) +
+  geom_line() + 
+  labs(x="Month", y="Maximum Daily Use (MGD)") +
+  scale_x_continuous(
+    limits = c(1, 12),
+    breaks = 1:12
+  )
+print(day_use_plot)
+str(df)
 ```
 
 8. Use the function above to extract data for Cary (PWSID = '03-92-020') in 2020. Combine this data with the Durham data collected above and create a plot that compares Cary's to Durham's water withdrawals.
 
 ```{r fetch.and.plot.Cary.2020.data}
 #8 
+df2 <- scrape.it("03-92-020",2020) #it works when i changed the year, but changing the PWSID doesn't do anything
 
+str(df2)
 ```
 
 
