@@ -27,7 +27,10 @@ This exercise accompanies the lessons in Environmental Data Analytics on data sc
 
 ```{r 1. Project Setup, message = FALSE}
 #1 
-library(tidyverse); library(rvest); library(here)
+library(tidyverse)
+library(rvest)
+library(here)
+library(cowplot)
 here()
 
 mytheme <- theme_gray() +
@@ -126,11 +129,9 @@ print(max_day_plot)
 ```{r construct.a.scraping.function}
 #6. 
 scrape.it <- function(PWSID, year){
-the_url <- paste0(
-      "https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2024",
-           PWSID, "&year=", year)
-
-the_website <- read_html(the_url)
+  base_url <- 'https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid='
+  scrape_url <- paste0(base_url, PWSID, "&year=", year)
+  the_website <- read_html(scrape_url)
 
   #setting element address variables
   the_contact_person <- 'div+ table tr:nth-child(4) td:nth-child(2)'
@@ -162,9 +163,20 @@ the_website <- read_html(the_url)
 ```{r fetch.and.plot.Durham.2020.data}
 #7 
 df <- scrape.it("03-32-010",2020)
+
+#making sure the max use value and the month are read as numeric and not characters
+df <- df %>%
+  mutate(
+    max.day.use.MGD = as.numeric(gsub(",", "", max.day.use.MGD)),
+    month = as.numeric(month)
+  )
+
+df <-  df %>% 
+  mutate(date = my(paste(month,"-",year)))
+
 day_use_plot <- ggplot(df, aes(x = month,y=max.day.use.MGD, group = 1)) +
   geom_line() + 
-  labs(x="Month", y="Maximum Daily Use (MGD)") +
+  labs(x="Month", y="Maximum Daily Use (MGD)", title="Durham, 2020") +
   scale_x_continuous(
     limits = c(1, 12),
     breaks = 1:12
@@ -177,9 +189,40 @@ str(df)
 
 ```{r fetch.and.plot.Cary.2020.data}
 #8 
-df2 <- scrape.it("03-92-020",2020) #it works when i changed the year, but changing the PWSID doesn't do anything
+df2 <- scrape.it("03-92-020",2020)
+
+#making sure the max use value and the month are read as numeric and not characters
+df2 <- df2 %>%
+  mutate(
+    max.day.use.MGD = as.numeric(gsub(",", "", max.day.use.MGD)),
+    month = as.numeric(month)
+  )
+
+df2 <-  df2 %>% 
+  mutate(date = my(paste(month,"-",year)))
+
+day_use_plot2 <- ggplot(df2, aes(x = month,y=max.day.use.MGD, group = 1)) +
+  geom_line() + 
+  labs(x="Month", y="Maximum Daily Use (MGD)", title="Cary, 2020") +
+  scale_x_continuous(
+    limits = c(1,12),
+    breaks = 1:12
+  )
 
 str(df2)
+
+compare <- ggplot() +
+  geom_line(
+    data=df, aes(x = month,y=max.day.use.MGD, group=1, color = "Durham")) +
+  geom_line(
+    data=df2, aes(x = month,y=max.day.use.MGD, group=1, color="Cary")) +
+  labs(
+    x="Month", y="Maximum Daily Use (MGD)", 
+    title = "Water Withdrawl for Cary and Durham, NC") +
+  scale_x_continuous(limits = c(1,12), breaks = 1:12) +
+  theme(legend.position = "right")
+
+print(compare)
 ```
 
 
@@ -189,9 +232,27 @@ str(df2)
 
 ```{r fetch.and.plot.Cary.multiyear.data }
 #9 
+the_years <- 2018:2023
+cary_id <- '03-92-020'
+cary_withdrawals <- map2(rep(cary_id, length(the_years)),the_years, scrape.it) %>%
+  bind_rows()
 
+#making sure the max daily use values are read as numeric and not characters
+cary_withdrawals <- cary_withdrawals %>%
+  mutate(max.day.use.MGD = as.numeric(max.day.use.MGD), month=as.numeric(month))
+
+cary_withdrawals <- cary_withdrawals %>% 
+  mutate(date = my(paste(month,"-",year)))
+
+cary_plot <- ggplot(cary_withdrawals, aes(x = date,y=max.day.use.MGD)) +
+  geom_line() + 
+  geom_smooth(method="loess", se=FALSE) +
+  labs(x="Year", y="Maximum Daily Use (MGD)", 
+       title = "Cary's Maximum Daily Withdrawal for 2018-2024") 
+
+print(cary_plot)
 ```
 
 Question: Just by looking at the plot (i.e. not running statistics), does Cary have a trend in water usage over time?
-> Answer:
+> Answer:There looks to be a slight increase over time in water used, as the smoothed line is increasing somewhat as time goes one. However, this increase is very slight.
 >
