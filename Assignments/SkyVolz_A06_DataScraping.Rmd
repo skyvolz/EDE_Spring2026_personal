@@ -33,10 +33,6 @@ library(here)
 library(cowplot)
 here()
 
-mytheme <- theme_gray() +
-  theme(axis.text = element_text(color = "black"), 
-        legend.position = "top")
-theme_set(mytheme)
 ```
 
 2. We will be scraping data from the NC DEQs Local Water Supply Planning website, specifically the Durham's 2024 Municipal Local Water Supply Plan (LWSP): 
@@ -108,13 +104,11 @@ max_day_df <- max_day_df %>%
   mutate(date = my(paste(month,"-",year)))
 
 #5 
-max_day_plot <- ggplot(max_day_df, aes(x = month,y=max.day.use.MGD)) +
-  geom_line() + #mytheme + 
-  labs(x="Month", y="Maximum Daily Use (MGD)") +
-  scale_x_continuous(
-    limits = c(1, 12),
-    breaks = 1:12
-  )
+max_day_plot <- ggplot(max_day_df, aes(x = date,y=max.day.use.MGD)) +
+  geom_line() + 
+  labs(x="Month", y="Maximum Daily Use (MGD)") + scale_x_date(
+    breaks = "1 month", date_labels = "%b")
+
 print(max_day_plot)
 
 ```
@@ -174,13 +168,12 @@ df <- df %>%
 df <-  df %>% 
   mutate(date = my(paste(month,"-",year)))
 
-day_use_plot <- ggplot(df, aes(x = month,y=max.day.use.MGD, group = 1)) +
+day_use_plot <- ggplot(df, aes(x = date,y=max.day.use.MGD, group = 1)) +
   geom_line() + 
   labs(x="Month", y="Maximum Daily Use (MGD)", title="Durham, 2020") +
-  scale_x_continuous(
-    limits = c(1, 12),
-    breaks = 1:12
-  )
+  scale_x_date(
+    breaks = "1 month", date_labels = "%b")
+
 print(day_use_plot)
 str(df)
 ```
@@ -204,22 +197,20 @@ df2 <-  df2 %>%
 day_use_plot2 <- ggplot(df2, aes(x = month,y=max.day.use.MGD, group = 1)) +
   geom_line() + 
   labs(x="Month", y="Maximum Daily Use (MGD)", title="Cary, 2020") +
-  scale_x_continuous(
-    limits = c(1,12),
-    breaks = 1:12
-  )
+  scale_x_date(
+    breaks = "1 month", date_labels = "%b")
 
 str(df2)
 
 compare <- ggplot() +
   geom_line(
-    data=df, aes(x = month,y=max.day.use.MGD, group=1, color = "Durham")) +
+    data=df, aes(x = date,y=max.day.use.MGD, group=1, color = "Durham")) +
   geom_line(
-    data=df2, aes(x = month,y=max.day.use.MGD, group=1, color="Cary")) +
+    data=df2, aes(x = date,y=max.day.use.MGD, group=1, color="Cary")) +
   labs(
     x="Month", y="Maximum Daily Use (MGD)", 
     title = "Water Withdrawl for Cary and Durham, NC") +
-  scale_x_continuous(limits = c(1,12), breaks = 1:12) +
+  scale_x_date(breaks = "1 month", date_labels = "%b") +
   theme(legend.position = "right")
 
 print(compare)

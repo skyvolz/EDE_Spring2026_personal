@@ -41,7 +41,9 @@ You might now feel that web scraping isn't always legitimate - and you're right!
 
 
 > For discussion: Can you give examples of ethical and unethical web scraping?
-
+Terms of service say do not scrape the data. Some websites have a file called robots.txt is a guard agaisnt scraping.
+Look to see if the site allows you to download it directly, or look for an API which allow you to scrape it.
+Webpages that don't have API are just built for viewing, then the website might get overloaded during scraping and block you. To fix this you can add in pauses.
 
 ## 1.1 Exploring the data we want to scrape
 
@@ -106,7 +108,7 @@ In the code chunk below, see if you can extract the Facility Name and Facility T
 
 ```{r scraping.exercise.1}
 the_facility_name <- webpage %>% 
-  html_nodes() %>% 
+  html_nodes("tr:nth-child(2) th+ .left") %>% 
   html_text()
 the_facility_name
 
@@ -117,7 +119,7 @@ the_facility_type
 ```
 
 Next, we'll extract multiple items from the web page into a list object. Using Selector Gadget, highlight in yellow or green all the Average Daily Withdrawal (MGD) values from the web page. Tip: Hold the <ctrl> key down while clicking elements to add/subtract regions from selected regions.
-
+#.table:nth-child(7) td:nth-child(7) , .table:nth-child(7) td:nth-child(3)
 Below is the code to extract average daily withdrawls. Add your code to extract max daily withdrawals into the `max_withdrawals` variable.
 ```{r scraping.multiple.objects}
 avg_withdrawals <- webpage %>% 
@@ -172,7 +174,7 @@ This begins by setting the parameters of the page we'll be scraping to variables
 #Construct the scraping web address, i.e. its URL
 the_base_url <- 'https://www.ncwater.org/WUDC/app/WWATR/report/view'
 the_facility <- '0004-0001'
-the_year <- 2020
+the_year <- 2015
 the_scrape_url <- paste0(the_base_url, '/', the_facility, '/', the_year)
 print(the_scrape_url)
 
@@ -310,8 +312,8 @@ the_main_website <- read_html(the_main_url)
 #You should find this to be "#content a"
 
 #Then extract all the nodes associated with this and rather than extracting them 
-the_facility_ids <- the_main_website %>% 
-  html_nodes('#content a') %>%    #Extract a list of html nodes taged with "content a"
+  the_facility_ids <- the_main_website %>% 
+    html_nodes('#content a') %>%    #Extract a list of html nodes taged with "content a"
   html_attr("href") %>%           #Pull the "href" attribute from the node
   str_split("/") %>%              #Split the html address into substrings, separated by "/"
   map_chr(.,9)                    #Extract the 9th item in the above, which is the facility ID
