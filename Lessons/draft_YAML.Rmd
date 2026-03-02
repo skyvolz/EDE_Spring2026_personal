@@ -1,17 +1,18 @@
 ---
-title: "test"
+title: "YAML Excercise"
 author: "sky volz"
-date: "2026-01-22"
+date: "2026-02-26"
 output: pdf_document
+subtitle: A draft copy
+toc: true
 ---
+##heading #1
 
-
+## Adding Another heading
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-
 
 ## R Markdown
 
